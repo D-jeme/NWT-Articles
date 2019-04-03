@@ -1,8 +1,11 @@
 package com.techprimers.db.model;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 public class Articles {
@@ -10,7 +13,7 @@ public class Articles {
     @Id
     @GeneratedValue
     @Column(name = "id_proizvoda")
-    private String id_proizvoda;
+    private Integer id_proizvoda;
     @Column(name = "naziv")
     private String naziv;
     @Column(name = "kratki_tekst")
@@ -23,24 +26,32 @@ public class Articles {
     private boolean aktivan;
     @Column(name = "kolicina")
     private Integer kolicina;
-
-    @OneToOne(mappedBy = "articles", cascade = CascadeType.ALL)
-    private PictureOfArticle pictureOfArticle;
-
-
     @Column (name ="popust")
     private Integer popust;
 
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "slika")
+    private Pictures pictures;
 
     public Articles() {
     }
 
-    public String getId_proizvoda() {
+    public Integer getId_proizvoda() {
         return id_proizvoda;
     }
 
-    public void setId_proizvoda(String id_proizvoda) {
+    public void setId_proizvoda(Integer id_proizvoda) {
         this.id_proizvoda = id_proizvoda;
+    }
+
+
+    public Pictures getPictures() {
+        return pictures;
+    }
+
+    public void setPictures(Pictures pictures) {
+        this.pictures = pictures;
     }
 
     public String getNaziv() {
