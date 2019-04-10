@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.core.io.support.ResourcePatternUtils.isUrl;
 
@@ -21,24 +23,39 @@ public class PicturesResource {
     @Autowired
     PicturesRepository picturesRepository;
 
-    @GetMapping(value = "/getAll")
+    @GetMapping(value = "/")
     public List<Pictures> getAll() {
         return picturesRepository.findAll();
     }
-
-    @GetMapping(value = "/getPicture/{id}")
+}
+   /* @GetMapping(value = "/{id}")
     public ResponseEntity<?> getArtical(@PathVariable Integer id) {
+
+        Map<String, Object> message = new HashMap<String, Object>();
         Pictures pictures = this.picturesRepository.findOne(id);
-        if(pictures==null)return new ResponseEntity<>("Ne postoji slika sa id "+id, HttpStatus.OK);
+        if (pictures == null) {
+
+            message.put("MESSAGE", "Ne postoji slika sa id " + id);
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }
         return new ResponseEntity<Pictures>(pictures, HttpStatus.OK);
     }
-    @PostMapping(value = "/post")
+
+    @PostMapping(value = "/")
     public ResponseEntity<?> persist(@RequestBody final Pictures pictures) {
 
-        if(pictures.getSlika()==""||pictures.getSlika()==null)
-            return new ResponseEntity<>("Polje slika se mora popuniti", HttpStatus.OK);
+        Map<String, Object> message = new HashMap<String, Object>();
+        if (pictures.getSlika() == "" || pictures.getSlika() == null){
 
-        if(!isUrl(pictures.getSlika()))return new ResponseEntity<>("Polje slika se mora biti URL", HttpStatus.OK);
+            message.put("MESSAGE", "Polje slika se mora popuniti");
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }
+
+        if (!isUrl(pictures.getSlika())){
+
+            message.put("MESSAGE", "Polje slika se mora biti URL");
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }
 
 
         picturesRepository.save(pictures);
@@ -47,4 +64,22 @@ public class PicturesResource {
 
     }
 
+    @DeleteMapping("/{id}")
+    ResponseEntity<?> delete(@PathVariable Integer id) {
+
+        Map<String, Object> message = new HashMap<String, Object>();
+        Pictures pictures = picturesRepository.findOne(id);
+        if (pictures == null){
+
+            message.put("MESSAGE","Ne postoji slika u bazi sa id " + id);
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }
+
+        picturesRepository.delete(pictures);
+
+        message.put("MESSAGE", "Uspjesno obrisan artikal " + id);
+        return new ResponseEntity<>(message, HttpStatus.OK);
+
+    }
 }
+*/

@@ -1,5 +1,6 @@
 package com.techprimers.db.resource;
 
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.techprimers.db.model.Articles;
 import com.techprimers.db.model.Users;
 import com.techprimers.db.repository.ArticlesRepository;
@@ -10,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.http.ResponseEntity;
 import com.techprimers.db.exceptions.NotFoundException;
-import java.util.Collection;
 
-import java.util.List;
+import java.util.*;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -32,54 +33,100 @@ public class ArticlesResource {
     public ResponseEntity<?> getAll() {
         Collection<Articles> articles = this.articlesRepository.findAll();
         if(articles.isEmpty())
-        {
-            return new ResponseEntity<>("Nema artikala u bazi", HttpStatus.OK);
+        {Map<String, Object> message = new HashMap<String, Object>();
+
+            message.put("MESSAGE", "Nema artikala u bazi");
+            return new ResponseEntity<>(message, HttpStatus.OK);
         }
         return new ResponseEntity<Collection<Articles>>(articles, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/getArticle/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<?> getArtical(@PathVariable Integer id) {
-        Articles article = this.articlesRepository.findOne(id);
-        if(article==null)return new ResponseEntity<>("Ne postoji artikal sa id "+id, HttpStatus.OK);
+       Articles article = this.articlesRepository.findByBroj(id);
+       System.out.println("rezultat"+article);
+        if(article==null){
+            Map<String, Object> message = new HashMap<String, Object>();
+
+            message.put("MESSAGE", "Ne postoji artikal sa id "+id);
+
+
+            return new ResponseEntity<>(message , HttpStatus.OK);
+            //return new ResponseEntity<>("Ne postoji artikal sa id "+id, HttpStatus.OK);
+        }
+
         return new ResponseEntity<Articles>(article, HttpStatus.OK);
     }
 
 
-    @PostMapping(value = "/post")
+    @PostMapping(value = "/")
     public ResponseEntity<?> persist(@RequestBody final Articles articles) {
+
+        Map<String, Object> message = new HashMap<String, Object>();
         Articles artikal=articlesRepository.findByNaziv(articles.getNaziv());
-        if(artikal!=null)
-            return new ResponseEntity<>("Vec postoji artikal sa nazivom "+articles.getNaziv(), HttpStatus.OK);
+        if(artikal!=null){
+
+            message.put("MESSAGE", "Vec postoji artikal sa nazivom "+articles.getNaziv());
+            return new ResponseEntity<>(message, HttpStatus.OK);
+
+        }
 
         if(articles.getCijena()==0) {
-            return new ResponseEntity<>("Polje cijena mora biti vece do nule", HttpStatus.OK);
-        }
-        if(articles.getAktivan()==null)
-            return new ResponseEntity<>("Polje aktivan mora biti popunjeno sa tru ili false", HttpStatus.OK);
-        if(articles.getDugi_tekst()=="")
-            return new ResponseEntity<>("Polje dugi_tekst mora biti popunjeno", HttpStatus.OK);
-        if(articles.getKratki_tekst()=="")
-            return new ResponseEntity<>("Polje kratki_tekst mora biti popunjeno", HttpStatus.OK);
-        if(articles.getNaziv()=="")
-            return new ResponseEntity<>("Polje naziv mora biti popunjeno", HttpStatus.OK);
 
+            message.put("MESSAGE", "Polje cijena mora biti vece do nule ");
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }
+        if(articles.getAktivan()==null){
+
+            message.put("MESSAGE", "Polje aktivan mora biti popunjeno sa true ili false");
+
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }
+
+        if(articles.getDugi_tekst()==""){
+
+            message.put("MESSAGE", "Polje dugi_tekst mora biti popunjeno");
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }
+        if(articles.getKratki_tekst()=="") {
+
+            message.put("MESSAGE", "Polje kratki_tekst mora biti popunjeno");
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }
+        if(articles.getNaziv()=="") {
+
+            message.put("MESSAGE", "Polje naziv mora biti popunjeno");
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }
         articlesRepository.save(articles);
         return new ResponseEntity<Collection<Articles>>(this.articlesRepository.findAll(), HttpStatus.OK);
-    }
-
-    @DeleteMapping("/delete/{id}")
+    }}
+/*
+    @DeleteMapping("/{id}")
     ResponseEntity<?> delete(@PathVariable Integer id){
         Articles article=articlesRepository.findOne(id);
-        if(article==null)return new ResponseEntity<>("Ne postoji artikal u bazi sa id "+id, HttpStatus.OK);
+        Map<String, Object> message = new HashMap<String, Object>();
+        if(article==null){
+
+            message.put("MESSAGE", "Ne postoji artikal u bazi sa id "+id);
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }
 
         articlesRepository.delete(article);
-         return new ResponseEntity<>("Uspjesno obrisan artikal "+id, HttpStatus.OK);
+
+        message.put("MESSAGE", "Uspjesno obrisan artikal "+id);
+         return new ResponseEntity<>(message, HttpStatus.OK);
     }
     @PutMapping("/updateAktivan/{id}")
     public ResponseEntity<?>  izmijeniAktivan(@PathVariable Integer id,@RequestBody final Articles articles){
         Articles article=articlesRepository.findOne(id);
-        if(article==null)return new ResponseEntity<>("Ne postoji artikal u bazi sa id "+id, HttpStatus.OK);
+
+        Map<String, Object> message = new HashMap<String, Object>();
+        if(article==null){
+
+            message.put("MESSAGE","Ne postoji artikal u bazi sa id "+id);
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }
         article.setAktivan(articles.getAktivan());
         return new ResponseEntity<Articles>(articlesRepository.save(article), HttpStatus.OK);
 
@@ -87,32 +134,55 @@ public class ArticlesResource {
 
     @PutMapping("/updateCijena/{id}")
     public ResponseEntity<?>  izmijeniCijena(@PathVariable Integer id,@RequestBody final Articles articles){
-        if(articles.getCijena()==null)
-            return new ResponseEntity<>("Mora postojati poslje cijena", HttpStatus.OK);
-        if(articles.getCijena()==0)
-            return new ResponseEntity<>("Cijena mora biti veci", HttpStatus.OK);
 
+        Map<String, Object> message = new HashMap<String, Object>();
+        if(articles.getCijena()==null) {
+
+            message.put("MESSAGE","Mora postojati polje cijena");
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }
+        if(articles.getCijena()==0) {
+            message.put("MESSAGE","Cijena mora biti veci od nule");
+
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }
         Articles article=articlesRepository.findOne(id);
-        if(article==null)return new ResponseEntity<>("Ne postoji artikal u bazi sa id "+id, HttpStatus.OK);
+        if(article==null){
+
+            message.put("MESSAGE","Ne postoji artikal u bazi sa id "+id);
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }
         article.setCijena(articles.getCijena());
         return new ResponseEntity<Articles>(articlesRepository.save(article), HttpStatus.OK);
     }
 
     @PutMapping("/updatePopust/{id}")
     public ResponseEntity<?> izmijeniPopust(@PathVariable Integer id,@RequestBody final Articles articles){
+
+        Map<String, Object> message = new HashMap<String, Object>();
         Articles article=articlesRepository.findOne(id);
-        if(article==null)return new ResponseEntity<>("Ne postoji artikal u bazi sa id "+id, HttpStatus.OK);
+        if(article==null){
+            message.put("MESSAGE","Ne postoji artikal u bazi sa id "+id);
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }
         article.setPopust(articles.getPopust());
         return new ResponseEntity<Articles>(articlesRepository.save(article), HttpStatus.OK);
     }
 
     @PutMapping("/updateKolicina/{id}")
     public ResponseEntity<?> izmijeniKolicina (@PathVariable Integer id,@RequestBody final Articles articles){
+
+        Map<String, Object> message = new HashMap<String, Object>();
         Articles article=articlesRepository.findOne(id);
-        if(article==null)return new ResponseEntity<>("Ne postoji artikal u bazi sa id "+id, HttpStatus.OK);
+        if(article==null){
+            message.put("MESSAGE","Ne postoji artikal u bazi sa id "+id);
+
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }
         article.setKolicina(articles.getKolicina());
 
         return new ResponseEntity<Articles>(articlesRepository.save(article), HttpStatus.OK);
     }
 
 }
+*/

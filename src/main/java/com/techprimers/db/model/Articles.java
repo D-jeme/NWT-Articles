@@ -12,8 +12,8 @@ public class Articles {
 
     @Id
     @GeneratedValue
-    @Column(name = "id_proizvoda")
-    private Integer id_proizvoda;
+    @Column(name = "broj")
+    private Integer broj;
     @Column(name = "naziv")
     private String naziv;
     @Column(name = "kratki_tekst")
@@ -37,12 +37,12 @@ public class Articles {
     public Articles() {
     }
 
-    public Integer getId_proizvoda() {
-        return id_proizvoda;
+    public Integer getBroj() {
+        return broj;
     }
 
-    public void setId_proizvoda(Integer id_proizvoda) {
-        this.id_proizvoda = id_proizvoda;
+    public void setBroj(Integer broj) {
+        this.broj = broj;
     }
 
 

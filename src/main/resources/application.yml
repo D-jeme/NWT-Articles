@@ -1,7 +1,9 @@
 spring:
+  application:
+    name: articles
   datasource:
     driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/baza
+    url: jdbc:mysql://localhost:3306/baza?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
     username: root
     password:
   jpa:
