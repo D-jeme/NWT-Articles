@@ -1,9 +1,7 @@
 package com.techprimers.db.resource;
 
 import com.techprimers.db.model.Pictures;
-import com.techprimers.db.model.Users;
 import com.techprimers.db.repository.PicturesRepository;
-import com.techprimers.db.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,12 +25,12 @@ public class PicturesResource {
     public List<Pictures> getAll() {
         return picturesRepository.findAll();
     }
-}
-   /* @GetMapping(value = "/{id}")
+
+   @GetMapping(value = "/{id}")
     public ResponseEntity<?> getArtical(@PathVariable Integer id) {
 
         Map<String, Object> message = new HashMap<String, Object>();
-        Pictures pictures = this.picturesRepository.findOne(id);
+        Pictures pictures = this.picturesRepository.findByBroj(id);
         if (pictures == null) {
 
             message.put("MESSAGE", "Ne postoji slika sa id " + id);
@@ -68,7 +66,7 @@ public class PicturesResource {
     ResponseEntity<?> delete(@PathVariable Integer id) {
 
         Map<String, Object> message = new HashMap<String, Object>();
-        Pictures pictures = picturesRepository.findOne(id);
+        Pictures pictures = picturesRepository.findByBroj(id);
         if (pictures == null){
 
             message.put("MESSAGE","Ne postoji slika u bazi sa id " + id);
@@ -82,4 +80,3 @@ public class PicturesResource {
 
     }
 }
-*/

@@ -12,8 +12,8 @@ public class Pictures {
 
     @Id
     @GeneratedValue
-    @Column(name = "id_slike")
-    private Integer id_slike;
+    @Column(name = "broj")
+    private Integer broj;
 
     @URL
     @Column(name = "slika")
@@ -23,12 +23,12 @@ public class Pictures {
     public Pictures() {
     }
 
-    public Integer getId_slike() {
-        return id_slike;
+    public Integer getBroj() {
+        return broj;
     }
 
-    public void setId_slike(Integer id_slike) {
-        this.id_slike = id_slike;
+    public void setBroj(Integer broj) {
+        this.broj = broj;
     }
 
     public String getSlika() {

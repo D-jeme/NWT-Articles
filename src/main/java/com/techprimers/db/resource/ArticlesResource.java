@@ -1,24 +1,18 @@
 package com.techprimers.db.resource;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.techprimers.db.model.Articles;
-import com.techprimers.db.model.Users;
 import com.techprimers.db.repository.ArticlesRepository;
-import com.techprimers.db.repository.UsersRepository;
 import com.techprimers.db.services.ArticlesService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.http.ResponseEntity;
-import com.techprimers.db.exceptions.NotFoundException;
 
 import java.util.*;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
-import static jdk.nashorn.internal.objects.Global.undefined;
-import static org.springframework.jdbc.support.JdbcUtils.isNumeric;
+import org.springframework.web.client.RestTemplate;
 
 
 @RestController
@@ -26,11 +20,39 @@ import static org.springframework.jdbc.support.JdbcUtils.isNumeric;
 public class ArticlesResource {
 
     @Autowired
+
     ArticlesRepository articlesRepository;
     ArticlesService articlesService;
+    @LoadBalanced
+    @Autowired
+    private RestTemplate restTemplate;
 
-    @GetMapping(value = "/getAll")
+    @GetMapping(value = "/1")
+    public ResponseEntity<?>get1(){
+        System.out.println("tu sam");
+    String string1 = null;
+        Articles ar =  restTemplate.getForObject("http://articles/articles/9",Articles.class);
+        System.out.println("poruka"+ar);
+        return new ResponseEntity<Articles>(ar, HttpStatus.OK);
+    }
+    @GetMapping(value = "/2")
+    public ResponseEntity<?>get2(){
+        System.out.println("tu sam");
+
+        String str =  restTemplate.getForObject("http://USERS/rest/users/hello",String.class);
+        System.out.println("poruka"+str);
+        return new ResponseEntity<String>(str, HttpStatus.OK);
+    }
+    @GetMapping("/hello")
+    public String getHelloWordObject() {
+      String hello=("Hi there! you are number ");
+        return hello;
+    }
+
+
+    @GetMapping(value = "/")
     public ResponseEntity<?> getAll() {
+        System.out.println("imal me");
         Collection<Articles> articles = this.articlesRepository.findAll();
         if(articles.isEmpty())
         {Map<String, Object> message = new HashMap<String, Object>();
@@ -70,6 +92,10 @@ public class ArticlesResource {
             return new ResponseEntity<>(message, HttpStatus.OK);
 
         }
+        if(!restTemplate.getForObject("http://USERS/rest/users/exist/"+articles.getObjavio(),Boolean.class)){
+            message.put("MESSAGE", "Ne postoji user sa id:"+articles.getObjavio());
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }
 
         if(articles.getCijena()==0) {
 
@@ -100,11 +126,11 @@ public class ArticlesResource {
         }
         articlesRepository.save(articles);
         return new ResponseEntity<Collection<Articles>>(this.articlesRepository.findAll(), HttpStatus.OK);
-    }}
-/*
+    }
+
     @DeleteMapping("/{id}")
     ResponseEntity<?> delete(@PathVariable Integer id){
-        Articles article=articlesRepository.findOne(id);
+        Articles article=articlesRepository.findByBroj(id);
         Map<String, Object> message = new HashMap<String, Object>();
         if(article==null){
 
@@ -117,9 +143,26 @@ public class ArticlesResource {
         message.put("MESSAGE", "Uspjesno obrisan artikal "+id);
          return new ResponseEntity<>(message, HttpStatus.OK);
     }
+    @DeleteMapping("all/{id}")
+    ResponseEntity<?> deleteUsersArticle(@PathVariable Long id){
+        Collection<Articles> articles=articlesRepository.findAll();
+        System.out.println("duzina"+articles.size());
+        for (Articles article:articles
+             ) {
+            if(article.getObjavio()==id) {
+            articlesRepository.delete(article);
+            }
+
+        }
+        Map<String, Object> message = new HashMap<String, Object>();
+
+
+        message.put("MESSAGE", "Uspjesno obrisani artikli korisnika sa idom:"+id);
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
     @PutMapping("/updateAktivan/{id}")
     public ResponseEntity<?>  izmijeniAktivan(@PathVariable Integer id,@RequestBody final Articles articles){
-        Articles article=articlesRepository.findOne(id);
+        Articles article=articlesRepository.findByBroj(id);
 
         Map<String, Object> message = new HashMap<String, Object>();
         if(article==null){
@@ -146,7 +189,7 @@ public class ArticlesResource {
 
             return new ResponseEntity<>(message, HttpStatus.OK);
         }
-        Articles article=articlesRepository.findOne(id);
+        Articles article=articlesRepository.findByBroj(id);
         if(article==null){
 
             message.put("MESSAGE","Ne postoji artikal u bazi sa id "+id);
@@ -160,7 +203,7 @@ public class ArticlesResource {
     public ResponseEntity<?> izmijeniPopust(@PathVariable Integer id,@RequestBody final Articles articles){
 
         Map<String, Object> message = new HashMap<String, Object>();
-        Articles article=articlesRepository.findOne(id);
+        Articles article=articlesRepository.findByBroj(id);
         if(article==null){
             message.put("MESSAGE","Ne postoji artikal u bazi sa id "+id);
             return new ResponseEntity<>(message, HttpStatus.OK);
@@ -173,7 +216,7 @@ public class ArticlesResource {
     public ResponseEntity<?> izmijeniKolicina (@PathVariable Integer id,@RequestBody final Articles articles){
 
         Map<String, Object> message = new HashMap<String, Object>();
-        Articles article=articlesRepository.findOne(id);
+        Articles article=articlesRepository.findByBroj(id);
         if(article==null){
             message.put("MESSAGE","Ne postoji artikal u bazi sa id "+id);
 
@@ -185,4 +228,3 @@ public class ArticlesResource {
     }
 
 }
-*/
